@@ -11,7 +11,7 @@ import time
 import wifi
 
 HOUR_HAND_LEN = 60
-MINUTE_HAND_LEN = 80
+MINUTE_HAND_LEN = 85
 LED_BRIGHTNESS = 30
 
 # R, G, B, Y, M
