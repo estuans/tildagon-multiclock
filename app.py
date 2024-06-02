@@ -36,18 +36,23 @@ class ClockApp(app.App):
     def __init__(self):
         super().__init__()
         self.button_states = Buttons(self)
-        eventbus.emit(PatternDisable())
-        # clock -> wificonnect -> ntp -> clock
-        self.state = "clock"
+        # init -> wificonnect -> ntp -> clock
+        # init -> clock
+        self.state = "init"
         self.flip = False
+        self.led_control = False
 
     def update(self, delta):
         if self.button_states.get(BUTTON_TYPES["CANCEL"]):
             self.button_states.clear()
-            if self.secs_led is not None:
+            if self.led_control:
                 # print(f"secs_led {self.secs_led} clearing")
                 # This doesn't seem to work from update()...?
-                tildagonos.leds[self.secs_led] = (0, 0, 0)
+                # tildagonos.leds[self.secs_led] = (0, 0, 0)
+
+                eventbus.emit(PatternEnable())
+                self.led_control = False
+
             self.minimise()
             return
 
@@ -59,7 +64,7 @@ class ClockApp(app.App):
             ntptime.settime()
             self.state = "clock"
 
-        if self.state == "clock":
+        if self.state == "init" or self.state == "clock":
             self.update_time()
 
             self.accel_data = imu.acc_read()
@@ -146,6 +151,10 @@ class ClockApp(app.App):
         # ctx.move_to(0, 0).text(f"{self.accel_data[0]}")
         # ctx.move_to(0, 20).text(f"{self.accel_data[1]}")
         # ctx.move_to(0, 40).text(f"{self.accel_data[2]}")
+
+        if not self.led_control:
+            eventbus.emit(PatternDisable())
+            self.led_control = True
 
         self.secs_led = (s // 5) + 1
         tildagonos.leds[self.secs_led] = SEC_LEDS[s % 5]
