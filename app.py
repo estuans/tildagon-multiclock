@@ -1,6 +1,7 @@
 import app
 import display
 from events.input import Buttons, BUTTON_TYPES
+import imu
 import math
 import ntptime
 from system.eventbus import eventbus
@@ -38,6 +39,7 @@ class ClockApp(app.App):
         eventbus.emit(PatternDisable())
         # clock -> wificonnect -> ntp -> clock
         self.state = "clock"
+        self.flip = False
 
     def update(self, delta):
         if self.button_states.get(BUTTON_TYPES["CANCEL"]):
@@ -60,6 +62,12 @@ class ClockApp(app.App):
         if self.state == "clock":
             self.update_time()
 
+            self.accel_data = imu.acc_read()
+            # Way sensor is orientated, x val is 9.8 when hanging down normally,
+            # and thus -9.8 when lifted up the other way. -5 is about right for
+            # when held up a bit.
+            self.flip = self.accel_data[0] < -5
+
     def update_time(self):
         self.yy, self.mm, self.dd, self.h, self.m, self.s, _, _ = time.gmtime()
         if self.yy == 2000:
@@ -81,6 +89,9 @@ class ClockApp(app.App):
 
     def draw(self, ctx):
         ctx.save()
+
+        ctx.rotate(math.pi if self.flip else 0)
+
         ctx.text_align = ctx.CENTER
         ctx.text_baseline = ctx.MIDDLE
         
@@ -131,6 +142,10 @@ class ClockApp(app.App):
         ctx.move_to(0, 0).line_to(HOUR_HAND_LEN * math.sin(hangle), -HOUR_HAND_LEN * math.cos(hangle))
         ctx.move_to(0, 0).line_to(MINUTE_HAND_LEN * math.sin(mangle), -MINUTE_HAND_LEN * math.cos(mangle))
         ctx.stroke()
+
+        # ctx.move_to(0, 0).text(f"{self.accel_data[0]}")
+        # ctx.move_to(0, 20).text(f"{self.accel_data[1]}")
+        # ctx.move_to(0, 40).text(f"{self.accel_data[2]}")
 
         self.secs_led = (s // 5) + 1
         tildagonos.leds[self.secs_led] = SEC_LEDS[s % 5]
