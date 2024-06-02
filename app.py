@@ -7,6 +7,7 @@ from system.eventbus import eventbus
 from system.patterndisplay.events import *
 from tildagonos import tildagonos
 import time
+import wifi
 
 HOUR_HAND_LEN = 60
 MINUTE_HAND_LEN = 80
@@ -35,7 +36,8 @@ class ClockApp(app.App):
         super().__init__()
         self.button_states = Buttons(self)
         eventbus.emit(PatternDisable())
-        ntptime.settime()
+        # clock -> wificonnect -> ntp -> clock
+        self.state = "clock"
 
     def update(self, delta):
         if self.button_states.get(BUTTON_TYPES["CANCEL"]):
@@ -47,12 +49,32 @@ class ClockApp(app.App):
             self.minimise()
             return
 
-        self.update_time()
+        if self.state == "wificonnect":
+            if wifi.status():
+                self.state = "ntp"
+
+        if self.state == "ntp":
+            ntptime.settime()
+            self.state = "clock"
+
+        if self.state == "clock":
+            self.update_time()
 
     def update_time(self):
-        self.yy, self.mm, self.dd, self.h, self.m, self.s, _, _ = time.localtime()
-        self.secs_led = (self.s // 5) + 1
-        tildagonos.leds[self.secs_led] = SEC_LEDS[self.s % 5]
+        self.yy, self.mm, self.dd, self.h, self.m, self.s, _, _ = time.gmtime()
+        if self.yy == 2000:
+            # the default time
+
+            if not wifi.status():
+                wifi.connect()
+                self.state = "wificonnect"
+            else:
+                self.state = "ntp"
+
+        else:
+            self.state = "clock"
+            self.secs_led = (self.s // 5) + 1
+            tildagonos.leds[self.secs_led] = SEC_LEDS[self.s % 5]
 
     def background_update(self):
         self.update_time()
@@ -64,7 +86,12 @@ class ClockApp(app.App):
         
         self.draw_outer(ctx)
         
-        self.draw_time(ctx, self.h, self.m, self.s)
+        if self.state == "wificonnect" or self.state == "test":
+            ctx.move_to(0, -10).text("Connecting")
+            ctx.move_to(0, 10).text("to wifi...")
+
+        if self.state == "clock":
+            self.draw_time(ctx, self.h, self.m, self.s)
 
         ctx.restore()
         # self.draw_overlays(ctx)
@@ -97,6 +124,7 @@ class ClockApp(app.App):
 
     def draw_time(self, ctx, h, m, s):
         h = h % 12
+        h = h + 1 # Manually adjust for BST due to NTP not seeming to do local time right
         hangle = (2 * math.pi) * ((h + m / 60) * 30) / 360
         mangle = (2 * math.pi) * (m * 6) / 360
         ctx.begin_path()
