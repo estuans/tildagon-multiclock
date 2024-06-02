@@ -31,6 +31,7 @@ SEC_LEDS = (
     (25, 25, 25)
 )
 
+WEEKDAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 
 class ClockApp(app.App):
     def __init__(self):
@@ -74,7 +75,7 @@ class ClockApp(app.App):
             self.flip = self.accel_data[0] < -5
 
     def update_time(self):
-        self.yy, self.mm, self.dd, self.h, self.m, self.s, _, _ = time.gmtime()
+        self.yy, self.mm, self.dd, self.h, self.m, self.s, self.wday, _ = time.gmtime()
         if self.yy == 2000:
             # the default time
 
@@ -107,7 +108,7 @@ class ClockApp(app.App):
             ctx.move_to(0, 10).text("to wifi...")
 
         if self.state == "clock":
-            self.draw_time(ctx, self.h, self.m, self.s)
+            self.draw_time(ctx, self.h, self.m, self.s, self.wday)
 
         ctx.restore()
         # self.draw_overlays(ctx)
@@ -138,11 +139,21 @@ class ClockApp(app.App):
             ctx.move_to(98 * math.sin(rad), -98 * math.cos(rad))
             ctx.text(numeral)
 
-    def draw_time(self, ctx, h, m, s):
+    def draw_time(self, ctx, h, m, s, wday):
         h = h % 12
         h = h + 1 # Manually adjust for BST due to NTP not seeming to do local time right
         hangle = (2 * math.pi) * ((h + m / 60) * 30) / 360
         mangle = (2 * math.pi) * (m * 6) / 360
+
+        ctx.font_size = 20
+        ctx.rgb(0.5, 0.5, 0.5)
+        wday_str = WEEKDAYS[wday]
+        wday_w = ctx.text_width(wday_str) + 4
+        wday_h = 24
+        ctx.move_to(50, 0).text(wday_str)
+        ctx.rectangle(50 - wday_w // 2, -wday_h // 2, wday_w, wday_h).stroke()
+
+        ctx.rgb(1, 1, 1)
         ctx.begin_path()
         ctx.move_to(0, 0).line_to(HOUR_HAND_LEN * math.sin(hangle), -HOUR_HAND_LEN * math.cos(hangle))
         ctx.move_to(0, 0).line_to(MINUTE_HAND_LEN * math.sin(mangle), -MINUTE_HAND_LEN * math.cos(mangle))
