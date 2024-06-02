@@ -84,8 +84,8 @@ class ClockApp(app.App):
             self.secs_led = (self.s // 5) + 1
             tildagonos.leds[self.secs_led] = SEC_LEDS[self.s % 5]
 
-    def background_update(self):
-        self.update_time()
+    # def background_update(self, delta):
+    #     self.update_time()
 
     def draw(self, ctx):
         ctx.save()
