@@ -37,4 +37,4 @@ description = "A Simple analogue clock"
 # increased, we interpret this as a new version being released.
 #
 # Version number must be an integer!
-version = "0.1.0"
+version = "0.2.0"
