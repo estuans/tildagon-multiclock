@@ -1,6 +1,6 @@
 [app]
 # The name of your app as displayed in the menu
-name = "Clock"
+name = "MultiClock"
 
 # The submenu where your app should appear.
 # One of: "Badge", "Music", "Media", "Apps", "Games"
@@ -14,21 +14,21 @@ category = "Badge"
 # OPTIONAL: If your app prefers wifi to be off or on when entering.
 # Useful if you want more resources (false) or need wifi (true).
 # Remove if you don't want to change wifi state!
-# wifi_preference = false
+wifi_preference = true
 
 [entry]
 # The name of your entry point `Application` class
-class = "ClockApp"
+class = "MultiClockApp"
 
 [metadata]
 # Your nickname.  Must be at most 32 characters!
-author = "tomsci"
+author = "estuans"
 
 # License of your app as an SPDX identifier: <https://spdx.org/licenses/>
 license = "LGPL-3.0-only"
 
 # URL to the repository of your app.
-url = "https://www.github.com/tomsci/tildagon-clock"
+url = "https://www.github.com/estuans/tildagon-multiclock"
 
 # Description of your app.  Maximum 140 characters!
 description = "A Simple analogue clock"
@@ -37,4 +37,4 @@ description = "A Simple analogue clock"
 # increased, we interpret this as a new version being released.
 #
 # Version number must be an integer!
-version = "0.2.0"
+version = "0.2.1"
