@@ -1,5 +1,4 @@
 import app
-import display
 from events.input import Buttons, BUTTON_TYPES
 import imu
 import math

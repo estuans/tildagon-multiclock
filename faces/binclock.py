@@ -5,11 +5,16 @@ from system.eventbus import eventbus
 from app_components import clear_background
 from system.patterndisplay.events import *
 
-
 from .abstract import Face
 
 bits = ["32", "16", "8", "4", "2", "1"]
 
+
+def add(x, y):
+    return x + y
+
+def sub(x, y):
+    return x - y
 
 def b60_to_bin(input: int) -> str:
     return '{0:06b}'.format(input)
@@ -22,19 +27,20 @@ class BinFace(Face):
             eventbus.emit(PatternDisable())
             self.app.led_control = True
 
+        for i in range(0, 12):
+            tildagonos.leds[1 + i] = (0, 0, 0)
+
         self.draw_outer(ctx)
         self.draw_time(ctx, self.app.h, self.app.m, self.app.s, self.app.wday)
     
         ctx.restore()
         # self.draw_overlays(ctx)
     
-    def render_bintime(self, val, offset=1, palette=(5,5,5)):
+    def render_bintime(self, val, offset=1, palette=(5,5,5), direction=add):
         for i in range(len(val)):
             bs = val[i]
             if bs == "1":
-                tildagonos.leds[i + offset] = palette
-            else:
-                tildagonos.leds[i + offset] = (0, 0, 0)
+                tildagonos.leds[direction(i,offset)] = palette
 
     def draw_time(self, ctx, h, m, s, wday):
         
@@ -43,7 +49,7 @@ class BinFace(Face):
         binhr = b60_to_bin(h)
 
         self.render_bintime(binsecs)
-        self.render_bintime(binmin, offset=7, palette=(5,0,0))
+        self.render_bintime(binmin, offset=12, palette=(5,0,0), direction=sub)
 
         ctx.font_size = 32
         ctx.rgb(0.5, 0.5, 0.5)
