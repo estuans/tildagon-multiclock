@@ -37,4 +37,4 @@ description = "A Clock with support for multiple faces"
 # increased, we interpret this as a new version being released.
 #
 # Version number must be an integer!
-version = "0.2.1"
+version = "0.2.2"
