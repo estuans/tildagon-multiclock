@@ -9,12 +9,8 @@ from .abstract import Face
 
 bits = ["32", "16", "8", "4", "2", "1"]
 
-
-def add(x, y):
-    return x + y
-
-def sub(x, y):
-    return x - y
+def normal(iter):
+    return iter
 
 def b60_to_bin(input: int) -> str:
     return '{0:06b}'.format(input)
@@ -36,11 +32,12 @@ class BinFace(Face):
         ctx.restore()
         # self.draw_overlays(ctx)
     
-    def render_bintime(self, val, offset=1, palette=(5,5,5), direction=add):
+    def render_bintime(self, val, offset=1, palette=(5,5,5), direction=normal):
+        val = list(direction(val))
         for i in range(len(val)):
             bs = val[i]
             if bs == "1":
-                tildagonos.leds[direction(i,offset)] = palette
+                tildagonos.leds[i + offset] = palette
 
     def draw_time(self, ctx, h, m, s, wday):
         
@@ -49,7 +46,7 @@ class BinFace(Face):
         binhr = b60_to_bin(h)
 
         self.render_bintime(binsecs)
-        self.render_bintime(binmin, offset=12, palette=(5,0,0), direction=sub)
+        self.render_bintime(binmin, offset=7, palette=(5,0,0), direction=reversed)
 
         ctx.font_size = 32
         ctx.rgb(0.5, 0.5, 0.5)
