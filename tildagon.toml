@@ -31,7 +31,7 @@ license = "LGPL-3.0-only"
 url = "https://www.github.com/estuans/tildagon-multiclock"
 
 # Description of your app.  Maximum 140 characters!
-description = "A Simple analogue clock"
+description = "A Clock with support for multiple faces"
 
 # Version number of your app.  If you push a commit where this number is
 # increased, we interpret this as a new version being released.
